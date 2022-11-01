@@ -5,7 +5,7 @@ https://github.com/Qualys/osslscanwin/releases/download/1.0.0/OSSLScan.zip
 
 # OSSLScan
 ## Description
-The OSSLScan.exe utility helps to detect CVE-2022- vulnerability.
+The OSSLScan.exe utility helps to detect CVE-2022-3602 and CVE-2022-3786 vulnerabilities.
 The utility will scan the entire hard drive(s) including archives (and nested JARs) for the OpenSSL libraries that indicates the application contains OpenSSL libraries. The utility will output its results to a console.
 
 QID descriptions can be found here:
@@ -61,7 +61,7 @@ C:\Src\Qualys\OOB\osslscanwin\build\x64\Release\output>OSSLScan.exe /scan_direct
 Qualys OpenSSL Vulnerability Scanner 1.0.0.0
 https://www.qualys.com/
 Dependencies: minizip/1.1, zlib/1.2.11, bzip2/1.0.8, rapidjson/1.1.0
-Supported CVE(s):
+Supported CVE(s): CVE-2022-3602, CVE-2022-3786
 
 Known TAR Extensions            : .tar
 Known GZIP TAR Extensions       : .tgz, .tar.gz
