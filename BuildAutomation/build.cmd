@@ -69,14 +69,14 @@ set BUILD_OUTPUT=..\build\x86\release\output
 set PACKAGE_FILE=..\build\%BUILD_TARGET%.zip
 
 ECHO Building - %BUILD_TARGET%
-MSBuild ..\Text4Shell.sln /m /nodeReuse:false /t:Clean,Rebuild /p:Configuration=Release,Platform=x86 >%LOG_FILE%
+MSBuild ..\OSSL.sln /m /nodeReuse:false /t:Clean,Rebuild /p:Configuration=Release,Platform=x86 >%LOG_FILE%
 SET BUILD_STATUS=%ERRORLEVEL%
 
 REM Copy unsigned binary
 xcopy /vy %BUILD_OUTPUT%\*.exe %BUILD_OUTPUT%\unsigned\ >>%LOG_FILE%
 
 REM Sign executable binaries 
-signtool sign /f "%bamboo_winsign_pfxfile%" /p "%bamboo_winsign_password%" /fd SHA256 /n "Qualys" /d http://www.qualys.com /tr http://timestamp.digicert.com /td SHA256 /v "%BUILD_OUTPUT%\Text4Scan.exe"
+signtool sign /f "%bamboo_winsign_pfxfile%" /p "%bamboo_winsign_password%" /fd SHA256 /n "Qualys" /d http://www.qualys.com /tr http://timestamp.digicert.com /td SHA256 /v "%BUILD_OUTPUT%\OSSLScan.exe"
 
 rem Postbuild
 xcopy /vy %BUILD_OUTPUT%\*.pdb %BUILD_OUTPUT%\symbols\ >>%LOG_FILE%
@@ -104,14 +104,14 @@ set BUILD_OUTPUT=..\build\x64\release\output
 set PACKAGE_FILE=..\build\%BUILD_TARGET%.zip
 
 ECHO Building - %BUILD_TARGET%
-MSBuild ..\Text4Shell.sln /m /nodeReuse:false /t:Clean,Rebuild /p:Configuration=Release,Platform=x64 >%LOG_FILE%
+MSBuild ..\OSSL.sln /m /nodeReuse:false /t:Clean,Rebuild /p:Configuration=Release,Platform=x64 >%LOG_FILE%
 SET BUILD_STATUS=%ERRORLEVEL%
 
 REM Copy unsigned binary
 xcopy /vy %BUILD_OUTPUT%\*.exe %BUILD_OUTPUT%\unsigned\ >>%LOG_FILE%
 
 REM Sign executable binaries 
-signtool sign /f "%bamboo_winsign_pfxfile%" /p "%bamboo_winsign_password%" /fd SHA256 /n "Qualys" /d http://www.qualys.com /tr http://timestamp.digicert.com /td SHA256 /v "%BUILD_OUTPUT%\Text4Scan.exe"
+signtool sign /f "%bamboo_winsign_pfxfile%" /p "%bamboo_winsign_password%" /fd SHA256 /n "Qualys" /d http://www.qualys.com /tr http://timestamp.digicert.com /td SHA256 /v "%BUILD_OUTPUT%\OSSLScan.exe"
 
 rem Postbuild
 xcopy /vy %BUILD_OUTPUT%\*.pdb %BUILD_OUTPUT%\symbols\ >>%LOG_FILE%
