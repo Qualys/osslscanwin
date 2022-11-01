@@ -42,9 +42,9 @@ bool IsOpenSSLArtifact(std::wstring& file) {
   return false;
 }
 
-bool IsCVE20223602Mitigated(std::wstring& version) {
+bool IsCVE20223602Mitigated(CFileVersionInfo& info) {
   int major = 0, minor = 0, build = 0;
-  if (ParseVersion(version, major, minor, build)) {
+  if (ParseVersion(info.fileVersion, major, minor, build)) {
     if ((major < 3)) return true;
     if ((major == 3) && (minor > 6)) return true;
     if ((major > 3)) return true;
@@ -52,9 +52,9 @@ bool IsCVE20223602Mitigated(std::wstring& version) {
   return false;
 }
 
-bool IsCVE20223786Mitigated(std::wstring& version) {
+bool IsCVE20223786Mitigated(CFileVersionInfo& info) {
   int major = 0, minor = 0, build = 0;
-  if (ParseVersion(version, major, minor, build)) {
+  if (ParseVersion(info.fileVersion, major, minor, build)) {
     if ((major < 3)) return true;
     if ((major == 3) && (minor > 6)) return true;
     if ((major > 3)) return true;
@@ -247,48 +247,46 @@ int32_t ScanFile(CScannerOptions& options, std::wstring file, std::wstring file_
     rv = ScanFileTarball(options, file, file_physical);
   } else if (IsOpenSSLArtifact(file)) {
     if (GetFileResourceInfo(file, fileVersionInfo)) {
-      if (IsCVE20223602Mitigated(fileVersionInfo.fileVersion)) {
-        cve20223602Mitigated = true;
-      }
-      if (IsCVE20223786Mitigated(fileVersionInfo.fileVersion)) {
-        cve20223786Mitigated = true;
-      }
-      if (cve20223602Mitigated && cve20223786Mitigated) {
-        cveStatus = L"Mitigated";
-      } else {
-        repSummary.foundVunerabilities++;
-        cveStatus = L"Potentially Vulnerable ( ";
-        if (!cve20223602Mitigated) {
-          cveStatus += L"CVE-2022-3602: Found, ";
-        } else {
-          cveStatus += L"CVE-2022-3602: NOT Found, ";
+
+      if (wcsstr(fileVersionInfo.productName.c_str(), L"OpenSSL")) {
+
+        if (IsCVE20223602Mitigated(fileVersionInfo)) {
+          cve20223602Mitigated = true;
         }
-        if (!cve20223786Mitigated) {
-          cveStatus += L"CVE-2022-3786: Found ";
-        } else {
-          cveStatus += L"CVE-2022-3786: NOT Found ";
+        if (IsCVE20223786Mitigated(fileVersionInfo)) {
+          cve20223786Mitigated = true;
         }
-        cveStatus += L")";
+        if (cve20223602Mitigated && cve20223786Mitigated) {
+          cveStatus = L"Mitigated";
+        } else {
+          repSummary.foundVunerabilities++;
+          cveStatus = L"Potentially Vulnerable ( ";
+          if (!cve20223602Mitigated) {
+            cveStatus += L"CVE-2022-3602: Found, ";
+          } else {
+            cveStatus += L"CVE-2022-3602: NOT Found, ";
+          }
+          if (!cve20223786Mitigated) {
+            cveStatus += L"CVE-2022-3786: Found ";
+          } else {
+            cveStatus += L"CVE-2022-3786: NOT Found ";
+          }
+          cveStatus += L")";
+        }
+
+        if (options.console) {
+          wprintf(
+              L"OpenSSL Found: '%s' ( Product Name: %s, Product Version: %s, File Description: %s, File Version: %s, CVE Status: %s )\n",
+              file.c_str(), fileVersionInfo.productName.c_str(), fileVersionInfo.productVersion.c_str(), fileVersionInfo.fileDescription.c_str(),
+              fileVersionInfo.fileVersion.c_str(), cveStatus.c_str());
+        }
+
+        repVulns.push_back(CReportVulnerabilities(
+            file, fileVersionInfo.productName, fileVersionInfo.productVersion, fileVersionInfo.fileDescription, fileVersionInfo.fileVersion,
+            cveStatus, cve20223602Mitigated, cve20223786Mitigated));
+      
       }
     }
-
-    if (options.console) {
-      wprintf(
-          L"OpenSSL Found: '%s' ( Product Name: %s, Product Version: %s, File Description: %s, File Version: %s, CVE Status: %s )\n",
-          file.c_str(),
-          fileVersionInfo.productName.c_str(),
-          fileVersionInfo.productVersion.c_str(),
-          fileVersionInfo.fileDescription.c_str(),
-          fileVersionInfo.fileVersion.c_str(),
-          cveStatus.c_str()
-      );
-    }
-
-    repVulns.push_back(CReportVulnerabilities(
-        file, fileVersionInfo.productName, fileVersionInfo.productVersion, fileVersionInfo.fileDescription, fileVersionInfo.fileVersion, cveStatus,
-        cve20223602Mitigated, cve20223786Mitigated
-    ));
-
   }
 
   return rv;
