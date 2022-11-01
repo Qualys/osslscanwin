@@ -1,18 +1,18 @@
 THIS SCRIPT IS PROVIDED TO YOU "AS IS." TO THE EXTENT PERMITTED BY LAW, QUALYS HEREBY DISCLAIMS ALL WARRANTIES AND LIABILITY FOR THE PROVISION OR USE OF THIS SCRIPT. IN NO EVENT SHALL THESE SCRIPTS BE DEEMED TO BE CLOUD SERVICES AS PROVIDED BY QUALYS
 
 # Direct Download Links
-https://github.com/Qualys/text4scanwin/releases/download/1.0.0/Text4Scan.zip
+https://github.com/Qualys/osslscanwin/releases/download/1.0.0/OSSLScan.zip
 
-# Text4Scanner
+# OSSLScan
 ## Description
-The Text4Scan.exe utility helps to detect CVE-2022-42889 vulnerability.
-The utility will scan the entire hard drive(s) including archives (and nested JARs) for the Java libraries that indicates the Java application contains a vulnerable Apache Commons Text library. The utility will output its results to a console.
+The OSSLScan.exe utility helps to detect CVE-2022- vulnerability.
+The utility will scan the entire hard drive(s) including archives (and nested JARs) for the OpenSSL libraries that indicates the application contains OpenSSL libraries. The utility will output its results to a console.
 
 QID descriptions can be found here:
 https://blog.qualys.com/vulnerabilities-threat-research/2022/10/25/cve-2022-44889-detect-text4shell
 
 Qualys customers should use the following to run the tool on any asset they want to scan, from an elevated command prompt:
-> Text4Scan.exe /scan /report_sig
+> OSSLScan.exe /scan /report_sig
 
 ## Usage
 ```
@@ -50,27 +50,25 @@ Qualys customers should use the following to run the tool on any asset they want
 ```
 
 Sample Usage (from an elevated command prompt) - The following command helps you scan local drives for vulnerable JAR, WAR, EAR, and ZIP.
-> Text4Scan.exe /scan
+> OSSLScan.exe /scan
 
 Sample Usage (from an elevated command prompt) - The following command helps you scan local drives for vulnerable files and writes a signature report to C:\ProgramData\Qualys
-> Text4Scan.exe /scan /report_sig
+> OSSLScan.exe /scan /report_sig
 
 ## Output - The following output shows the detection
 ```
-C:\Temp>Text4Scan.exe /scan_directory C:\Text4Shell
-Qualys Text4Shell Vulnerability Scanner 1.0.0.0
+C:\Temp>OSSLScan.exe /scan_directory C:\OSSLScan
+Qualys OpenSSL Vulnerability Scanner 1.0.0.0
 https://www.qualys.com/
 Dependencies: minizip/1.1, zlib/1.2.11, bzip2/1.0.8, rapidjson/1.1.0
-Supported CVE(s): 2022-42889
+Supported CVE(s): 2022-
 
 Known TAR Extensions            : .tar
 Known GZIP TAR Extensions       : .tgz, .tar.gz
 Known BZIP TAR Extensions       : .tbz, .tbz2, .tar.bz, .tar.bz2
 Known ZIP Extensions            : .zip, .jar, .war, .ear, .par, .kar, .sar, .rar, .jpi, .hpi, .apk
 
-Scanning 'C:\Text4Shell\'...
-Apache Commons Text Found: 'C:\Data\Text4Shell\commons-text-1.9.jar' ( Manifest Title: Apache Commons Text, Manifest Vendor: The Apache Software Foundation, Manifest Version: 1.9, CVE Status: Potentially Vulnerable ( CVE-2022-42889: Found ) )
-Apache Commons Text Found: 'C:\Data\Text4Shell\untitled.jar' ( Manifest Title: Unknown, Manifest Vendor: Unknown, Manifest Version: Unknown, CVE Status: Potentially Vulnerable ( CVE-2022-42889: Found ) )
+Scanning 'C:\OSSL\'...
 
 Scan Summary:
         Scan Date:                       2022-10-26T12:05:41-0700
