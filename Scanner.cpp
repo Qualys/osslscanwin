@@ -34,7 +34,8 @@ bool IsOpenSSLArtifact(std::wstring& file) {
   exts.push_back(L".dll");
   std::transform(file.begin(), file.end(), file.begin(), ::tolower);
   if (IsKnownFileExtension(exts, file)) {
-    if (wcsstr(file.c_str(), L"libcrypto") || wcsstr(file.c_str(), L"libssl")) {
+    if (wcsstr(file.c_str(), L"libcrypto") || wcsstr(file.c_str(), L"libssl") ||
+        wcsstr(file.c_str(), L"libeay32") || wcsstr(file.c_str(), L"ssleay32")) {
       return true;
     }
   }
