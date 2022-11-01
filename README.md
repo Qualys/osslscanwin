@@ -9,7 +9,7 @@ The OSSLScan.exe utility helps to detect CVE-2022- vulnerability.
 The utility will scan the entire hard drive(s) including archives (and nested JARs) for the OpenSSL libraries that indicates the application contains OpenSSL libraries. The utility will output its results to a console.
 
 QID descriptions can be found here:
-https://blog.qualys.com/vulnerabilities-threat-research/2022/10/25/cve-2022-44889-detect-text4shell
+https://blog.qualys.com/vulnerabilities-threat-research/2022/10/31/qualys-research-alert-prepare-for-a-critical-vulnerability-in-openssl-3-0
 
 Qualys customers should use the following to run the tool on any asset they want to scan, from an elevated command prompt:
 > OSSLScan.exe /scan /report_sig
