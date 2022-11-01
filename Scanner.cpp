@@ -42,7 +42,7 @@ bool IsOpenSSLArtifact(std::wstring& file) {
   return false;
 }
 
-bool IsCVE2022Mitigated(std::wstring& version) {
+bool IsCVE20223602Mitigated(std::wstring& version) {
   int major = 0, minor = 0, build = 0;
   if (ParseVersion(version, major, minor, build)) {
     if ((major < 3)) return true;
@@ -52,7 +52,18 @@ bool IsCVE2022Mitigated(std::wstring& version) {
   return false;
 }
 
-int32_t ScanFileZIPArchive(CScannerOptions& options, std::wstring file, std::wstring file_physical) {
+bool IsCVE20223786Mitigated(std::wstring& version) {
+  int major = 0, minor = 0, build = 0;
+  if (ParseVersion(version, major, minor, build)) {
+    if ((major < 3)) return true;
+    if ((major == 3) && (minor > 6)) return true;
+    if ((major > 3)) return true;
+  }
+  return false;
+}
+
+int32_t ScanFileZIPArchive(CScannerOptions& options, std::wstring file,
+                           std::wstring file_physical) {
   int32_t                   rv = ERROR_SUCCESS;
   unzFile                   zf = NULL;
   unz_file_info64           file_info;
@@ -214,7 +225,8 @@ int32_t ScanFile(CScannerOptions& options, std::wstring file, std::wstring file_
   int32_t rv = ERROR_SUCCESS;
   CFileVersionInfo fileVersionInfo;
   std::wstring cveStatus = L"Unknown";
-  bool cve2022Mitigated = false;
+  bool cve20223602Mitigated = false;
+  bool cve20223786Mitigated = false;
 
 
   // Checking for excluded files
@@ -235,12 +247,28 @@ int32_t ScanFile(CScannerOptions& options, std::wstring file, std::wstring file_
     rv = ScanFileTarball(options, file, file_physical);
   } else if (IsOpenSSLArtifact(file)) {
     if (GetFileResourceInfo(file, fileVersionInfo)) {
-      if (IsCVE2022Mitigated(fileVersionInfo.fileVersion)) {
-        cve2022Mitigated = true;
+      if (IsCVE20223602Mitigated(fileVersionInfo.fileVersion)) {
+        cve20223602Mitigated = true;
+      }
+      if (IsCVE20223786Mitigated(fileVersionInfo.fileVersion)) {
+        cve20223786Mitigated = true;
+      }
+      if (cve20223602Mitigated && cve20223786Mitigated) {
         cveStatus = L"Mitigated";
       } else {
         repSummary.foundVunerabilities++;
-        cveStatus = L"Potentially Vulnerable ( CVE-2022-: Found )";
+        cveStatus = L"Potentially Vulnerable ( ";
+        if (!cve20223602Mitigated) {
+          cveStatus += L"CVE-2022-3602: Found, ";
+        } else {
+          cveStatus += L"CVE-2022-3602: NOT Found, ";
+        }
+        if (!cve20223786Mitigated) {
+          cveStatus += L"CVE-2022-3786: Found ";
+        } else {
+          cveStatus += L"CVE-2022-3786: NOT Found ";
+        }
+        cveStatus += L")";
       }
     }
 
@@ -257,7 +285,8 @@ int32_t ScanFile(CScannerOptions& options, std::wstring file, std::wstring file_
     }
 
     repVulns.push_back(CReportVulnerabilities(
-        file, fileVersionInfo.productName, fileVersionInfo.productVersion, fileVersionInfo.fileDescription, fileVersionInfo.fileVersion, cveStatus, cve2022Mitigated
+        file, fileVersionInfo.productName, fileVersionInfo.productVersion, fileVersionInfo.fileDescription, fileVersionInfo.fileVersion, cveStatus,
+        cve20223602Mitigated, cve20223786Mitigated
     ));
 
   }

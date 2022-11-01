@@ -28,8 +28,9 @@ struct CCommandLineOptions {
   std::vector<std::wstring> excludedFiles;
   bool report{ false };
   bool reportPretty{ false };
-  bool reportSig{ false };
-  bool lowpriority{ false };
+  bool reportSig{false};
+  bool reportCAR{false};
+  bool lowpriority{false};
   bool verbose{ false };
   bool no_logo{ false };
   bool help{ false };
@@ -98,6 +99,8 @@ int32_t PrintHelp(int32_t argc, wchar_t* argv[]) {
   wprintf(L"  Generate a human readable JSON report of possible detections of supported CVE(s).\n");
   wprintf(L"/report_sig\n");
   wprintf(L"  Generate a signature report of possible detections of supported CVE(s).\n");
+  wprintf(L"/report_car\n");
+  wprintf(L"  Generate a CAR signature report of possible detections of supported CVE(s).\n");
   wprintf(L"/lowpriority\n");
   wprintf(L"  Lowers the execution and I/O priority of the scanner.\n");
   wprintf(L"/help\n");
@@ -175,6 +178,9 @@ int32_t ProcessCommandLineOptions(int32_t argc, wchar_t* argv[]) {
     } else if (ARG(report_sig)) {
       cmdline_options.no_logo = true;
       cmdline_options.reportSig = true;
+    } else if (ARG(report_car)) {
+      cmdline_options.no_logo = true;
+      cmdline_options.reportCAR = true;
     } else if (ARG(nologo)) {
       cmdline_options.no_logo = true;
     } else if (ARG(lowpriority)) {
@@ -228,7 +234,7 @@ int32_t __cdecl wmain(int32_t argc, wchar_t* argv[]) {
     wprintf(L"Qualys OpenSSL Vulnerability Scanner %S\n", SCANNER_VERSION_STRING);
     wprintf(L"https://www.qualys.com/\n");
     wprintf(L"Dependencies: minizip/1.1, zlib/%S, bzip2/%S, rapidjson/%S\n", zlibVersion(), BZ2_bzlibVersion(), RAPIDJSON_VERSION_STRING);
-    wprintf(L"Supported CVE(s): \n\n");
+    wprintf(L"Supported CVE(s): CVE-2022-3602, CVE-2022-3786\n\n");
   }
 
   if (cmdline_options.help) {
@@ -363,7 +369,7 @@ int32_t __cdecl wmain(int32_t argc, wchar_t* argv[]) {
 
   repSummary.scanStart = time(0);
 
-  if (cmdline_options.reportSig) {
+  if (cmdline_options.reportSig || cmdline_options.reportCAR) {
     wprintf(L"Scan Start: %s\n", FormatLocalTime(repSummary.scanStart).c_str());
   }
 
@@ -419,7 +425,7 @@ int32_t __cdecl wmain(int32_t argc, wchar_t* argv[]) {
     SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_END);
   }
   
-  if (cmdline_options.reportSig) {
+  if (cmdline_options.reportSig || cmdline_options.reportCAR) {
     wprintf(L"\nScan End: %s\n", FormatLocalTime(repSummary.scanEnd).c_str());
   }
 
@@ -446,12 +452,26 @@ int32_t __cdecl wmain(int32_t argc, wchar_t* argv[]) {
   if (cmdline_options.reportSig) {
     GenerateSignatureReport();
   }
+  if (cmdline_options.reportCAR) {
+    GenerateCARReport();
+  }
 
 END:
 
   if (cmdline_options.reportSig) {
     wprintf(L"Result File: %s\n", GetSignatureReportFindingsFilename().c_str());
     wprintf(L"Summary File: %s\n", GetSignatureReportSummaryFilename().c_str());
+    wprintf(L"Run Status: %s\n", repSummary.scanStatus.c_str());
+    if (repSummary.scanErrorCount) {
+      wprintf(L"Errors :");
+      for (const auto& e : error_array) {
+        wprintf(L"%s\n", e.c_str());
+      }
+    }
+  }
+  if (cmdline_options.reportCAR) {
+    wprintf(L"Result File: %s\n", GetCARReportFindingsFilename().c_str());
+    wprintf(L"Summary File: %s\n", GetCARReportSummaryFilename().c_str());
     wprintf(L"Run Status: %s\n", repSummary.scanStatus.c_str());
     if (repSummary.scanErrorCount) {
       wprintf(L"Errors :");

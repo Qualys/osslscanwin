@@ -163,7 +163,8 @@ int32_t GenerateReportDetail(DocumentW& doc) {
     ValueW vProductName(rapidjson::kStringType);
     ValueW vFileDescription(rapidjson::kStringType);
     ValueW vFileVersion(rapidjson::kStringType);
-    ValueW vCVE2022Mitigated(rapidjson::kTrueType);
+    ValueW vCVE20223602Mitigated(rapidjson::kTrueType);
+    ValueW vCVE20223786Mitigated(rapidjson::kTrueType);
     ValueW vCVEStatus(rapidjson::kStringType);
     ValueW oDetail(rapidjson::kObjectType);
 
@@ -171,14 +172,16 @@ int32_t GenerateReportDetail(DocumentW& doc) {
     vProductName.SetString(vuln.productName.c_str(), doc.GetAllocator());
     vFileDescription.SetString(vuln.fileDescription.c_str(), doc.GetAllocator());
     vFileVersion.SetString(vuln.fileVersion.c_str(), doc.GetAllocator());
-    vCVE2022Mitigated.SetBool(vuln.cve2022Mitigated);
+    vCVE20223602Mitigated.SetBool(vuln.cve20223602Mitigated);
+    vCVE20223786Mitigated.SetBool(vuln.cve20223786Mitigated);
     vCVEStatus.SetString(vuln.cveStatus.c_str(), doc.GetAllocator());
 
     oDetail.AddMember(L"file", vFile, doc.GetAllocator());
     oDetail.AddMember(L"productName", vProductName, doc.GetAllocator());
     oDetail.AddMember(L"fileDescription", vFileDescription, doc.GetAllocator());
     oDetail.AddMember(L"fileVersion", vFileVersion, doc.GetAllocator());
-    oDetail.AddMember(L"cve2022Mitigated", vCVE2022Mitigated, doc.GetAllocator());
+    oDetail.AddMember(L"cve20223602Mitigated", vCVE20223602Mitigated, doc.GetAllocator());
+    oDetail.AddMember(L"cve20223786Mitigated", vCVE20223786Mitigated, doc.GetAllocator());
     oDetail.AddMember(L"cveStatus", vCVEStatus, doc.GetAllocator());
 
     oDetails.PushBack(oDetail, doc.GetAllocator());
@@ -277,6 +280,84 @@ int32_t GenerateSignatureReport() {
 
     fclose(signature_file);
   } 
+
+  return rv;
+}
+
+int32_t GenerateCARReport() {
+  int32_t rv = ERROR_SUCCESS;
+
+  FILE* signature_summary = nullptr;
+  _wfopen_s(&signature_summary, GetCARReportSummaryFilename().c_str(), L"w+, ccs=UTF-8");
+  if (signature_summary) {
+    fwprintf_s(signature_summary, L"scanEngine: %S\n", SCANNER_VERSION_STRING);
+    fwprintf_s(signature_summary, L"scanHostname: %s\n", GetHostName().c_str());
+    fwprintf_s(signature_summary, L"scanDate: %s\n", FormatLocalTime(repSummary.scanStart).c_str());
+    fwprintf_s(signature_summary, L"scanDurationSeconds: %I64d\n", repSummary.scanEnd - repSummary.scanStart);
+    fwprintf_s(signature_summary, L"scanErrorCount: %I64d\n", repSummary.scanErrorCount);
+    fwprintf_s(signature_summary, L"scanStatus: %s\n", repSummary.scanStatus.c_str());
+    fwprintf_s(signature_summary, L"scanFiles: %I64d\n", repSummary.scannedFiles);
+    fwprintf_s(signature_summary, L"scannedDirectories: %I64d\n", repSummary.scannedDirectories);
+    fwprintf_s(signature_summary, L"scannedCompressed: %I64d\n", repSummary.scannedCompressed);
+    fwprintf_s(signature_summary, L"scannedJARS: %I64d\n", repSummary.scannedJARs);
+    fwprintf_s(signature_summary, L"scannedWARS: %I64d\n", repSummary.scannedWARs);
+    fwprintf_s(signature_summary, L"scannedEARS: %I64d\n", repSummary.scannedEARs);
+    fwprintf_s(signature_summary, L"scannedTARS: %I64d\n", repSummary.scannedTARs);
+    for (size_t i = 0; i < repSummary.excludedDrives.size(); ++i) {
+      fwprintf_s(signature_summary, L"excludedDrive: %s\n", repSummary.excludedDrives[i].c_str());
+    }
+    for (size_t i = 0; i < repSummary.excludedDirectories.size(); ++i) {
+      fwprintf_s(signature_summary, L"excludedDirectory: %s\n", repSummary.excludedDirectories[i].c_str());
+    }
+    for (size_t i = 0; i < repSummary.excludedFiles.size(); ++i) {
+      fwprintf_s(signature_summary, L"excludedFile: %s\n", repSummary.excludedFiles[i].c_str());
+    }
+    for (const auto& ext : repSummary.knownTarExtensions) {
+      fwprintf_s(signature_summary, L"knownTarExtensions: %s\n", ext.c_str());
+    }
+    for (const auto& ext : repSummary.knownGZipTarExtensions) {
+      fwprintf_s(signature_summary, L"knownGZipTarExtensions: %s\n", ext.c_str());
+    }
+    for (const auto& ext : repSummary.knownBZipTarExtensions) {
+      fwprintf_s(signature_summary, L"knownBZipTarExtensions: %s\n", ext.c_str());
+    }
+    for (const auto& ext : repSummary.knownZipExtensions) {
+      fwprintf_s(signature_summary, L"knownZipExtensions: %s\n", ext.c_str());
+    }
+    fwprintf_s(signature_summary, L"vulnerabilitiesFound: %I64d\n", repSummary.foundVunerabilities);
+    fclose(signature_summary);
+  }
+
+  FILE* signature_file = nullptr;
+  _wfopen_s(&signature_file, GetCARReportFindingsFilename().c_str(),
+            L"w+, ccs=UTF-8");
+  if (signature_file) {
+    for (size_t i = 0; i < repVulns.size(); i++) {
+      CReportVulnerabilities vuln = repVulns[i];
+
+      if (!vuln.cve20223602Mitigated || !vuln.cve20223786Mitigated) {
+        fwprintf_s(
+          signature_file,
+          L"Source: Product Name: %s, Product Version: %s, File Description: %s, File Version: %s\n",
+          vuln.productName.c_str(), vuln.productVersion.c_str(), vuln.fileDescription.c_str(), vuln.fileVersion.c_str()
+        );
+        fwprintf_s(
+          signature_file,
+          L"Path=%s\n", vuln.file.c_str()
+        );
+        fwprintf_s(
+          signature_file,
+          L"%s %s\n", vuln.productName.c_str(), vuln.fileVersion.c_str()
+        );
+        fwprintf_s(
+          signature_file,
+          L"------------------------------------------------------------------------\n"
+        );
+      }
+    }
+
+    fclose(signature_file);
+  }
 
   return rv;
 }

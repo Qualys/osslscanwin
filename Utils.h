@@ -52,6 +52,8 @@ std::wstring GetScanUtilityDirectory();
 std::wstring GetReportDirectory();
 std::wstring GetSignatureReportFindingsFilename();
 std::wstring GetSignatureReportSummaryFilename();
+std::wstring GetCARReportFindingsFilename();
+std::wstring GetCARReportSummaryFilename();
 
 class CFileVersionInfo {
  public:

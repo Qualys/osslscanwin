@@ -52,12 +52,14 @@ class CReportVulnerabilities {
   std::wstring productVersion;
   std::wstring fileDescription;
   std::wstring fileVersion;
-  bool cve2022Mitigated;
+  bool cve20223602Mitigated;
+  bool cve20223786Mitigated;
   std::wstring cveStatus;
 
   CReportVulnerabilities(std::wstring file, std::wstring productName,
-                         std::wstring productVersion, std::wstring fileDescription,
-                         std::wstring fileVersion, std::wstring cveStatus, bool cve2022Mitigated)
+                         std::wstring productVersion, std::wstring fileDescription, std::wstring fileVersion,
+                         std::wstring cveStatus, bool cve20223602Mitigated,
+                         bool cve20223786Mitigated)
   {
     this->file = file;
     this->productName = productName;
@@ -65,7 +67,8 @@ class CReportVulnerabilities {
     this->fileDescription = fileDescription;
     this->fileVersion = fileVersion;
     this->cveStatus = cveStatus;
-    this->cve2022Mitigated = cve2022Mitigated;
+    this->cve20223602Mitigated = cve20223602Mitigated;
+    this->cve20223786Mitigated = cve20223786Mitigated;
   }
 };
 
@@ -83,3 +86,4 @@ int32_t ReportProcessFile();
 
 int32_t GenerateJSONReport(bool pretty);
 int32_t GenerateSignatureReport();
+int32_t GenerateCARReport();

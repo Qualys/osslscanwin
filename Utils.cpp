@@ -578,6 +578,14 @@ std::wstring GetSignatureReportSummaryFilename() {
   return GetReportDirectory() + L"\\" + report_sig_summary_file;
 }
 
+std::wstring GetCARReportFindingsFilename() {
+  return GetReportDirectory() + L"\\car_" + report_sig_output_file;
+}
+
+std::wstring GetCARReportSummaryFilename() {
+  return GetReportDirectory() + L"\\car_" + report_sig_summary_file;
+}
+
 bool ParseVersion(std::wstring version, int& major, int& minor, int& build) {
   return (0 != swscanf_s(version.c_str(), L"%d.%d.%d", &major, &minor, &build));
 }
