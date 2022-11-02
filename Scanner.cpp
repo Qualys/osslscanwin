@@ -46,7 +46,8 @@ bool IsCVE20223602Mitigated(CFileVersionInfo& info) {
   int major = 0, minor = 0, build = 0;
   if (ParseVersion(info.fileVersion, major, minor, build)) {
     if ((major < 3)) return true;
-    if ((major == 3) && (minor > 6)) return true;
+    if ((major == 3) && (minor == 0) && (build > 6)) return true;
+    if ((major == 3) && (minor > 0)) return true;
     if ((major > 3)) return true;
   }
   return false;
@@ -56,7 +57,8 @@ bool IsCVE20223786Mitigated(CFileVersionInfo& info) {
   int major = 0, minor = 0, build = 0;
   if (ParseVersion(info.fileVersion, major, minor, build)) {
     if ((major < 3)) return true;
-    if ((major == 3) && (minor > 6)) return true;
+    if ((major == 3) && (minor == 0) && (build > 6)) return true;
+    if ((major == 3) && (minor > 0)) return true;
     if ((major > 3)) return true;
   }
   return false;
