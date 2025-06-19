@@ -3,6 +3,8 @@ THIS SCRIPT IS PROVIDED TO YOU "AS IS." TO THE EXTENT PERMITTED BY LAW, QUALYS H
 # Project Deprecated
 Functionality has been rolled into our product offerings, see https://www.qualys.com/apps/software-composition-analysis/ for details.
 
+Project will be removed/deleted on October 1, 2025.
+
 # OSSLScan
 ## Description
 The OSSLScan.exe utility helps to detect CVE-2022-3602 and CVE-2022-3786 vulnerabilities.
